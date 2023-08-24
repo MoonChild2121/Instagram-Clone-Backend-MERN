@@ -33,6 +33,29 @@ router.post('/signup', (req, res)=> {
     })
 })
 
+router.post('/signin', (req,res) => {
+    const {email, password} = req.body;
+    if(!email || !password) {
+        return res.status(422).json({error: "please add all the fields"})
+    }
+    USER.findOne({email:email})
+    .then((matchingUser)=> {
+        if(!matchingUser){
+            return res.status(422).json({error: "invalid email"})
+        }
+        bcrypt.compare(password, matchingUser.password)
+        .then((match)=> {
+            if(match){
+                return res.status(200).json({message: "signed in successfully"})
+            }
+            else{
+                return res.status(422).json({error: "invalid password"})
+            }
+        })
+        .catch(err=> console.log(err))
+    })
+})
+
 
 
 module.exports = router
