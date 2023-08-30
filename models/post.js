@@ -1,0 +1,21 @@
+const mongoose = require("mongoose")
+const {ObjectId} = mongoose.Schema.Types
+const USER = mongoose.model("USER")
+
+const postSchema = new mongoose.Schema (
+    {
+    body: {
+        type: String,
+        required: true,
+    },
+    photo: {
+        type: String,
+        required: true
+    },
+    postedBy: {
+        type: ObjectId, // which user is posting
+        ref: "USER"
+    }
+}
+) 
+mongoose.model("POST", postSchema)
