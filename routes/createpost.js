@@ -27,12 +27,16 @@ router.post('/createPost', login, (req, res) => {
 router.get('/posts',login, (req, res)=> {
     POST.find()
     .populate("postedBy","_id name")
+    .populate("comments.postedBy", "_id name")
     .then(posts => res.json(posts))
     .catch(err => console.log(err))
 })
 
+
 router.get('/myposts',login, (req, res) => {
     POST.find({postedBy: req.user._id})
+    .populate("postedBy","_id name")
+    .populate("comments.postedBy", "_id name")
     .then(myposts => {
         res.json(myposts)
     })
@@ -68,5 +72,45 @@ router.put("/dislike", login, (req, res) => {
         return res.status(422).json({ error: err });
     });
 });
+
+router.put("/comment", login, (req, res)=> {
+    const comment = {
+        comment : req.body.text,
+        postedBy : req.user._id
+    }
+    POST.findByIdAndUpdate(req.body.postId, {
+        $push: {comments: comment}
+    }, {
+        new: true
+    })
+    .populate("comments.postedBy", "_id name")
+    .populate("postedBy", "_id name")
+    .then((result) => {
+        return res.json(result);
+    })
+    .catch(err => {
+        return res.status(422).json({error: err});
+    })
+})
+//delete post
+router.delete("/deletePost/:postId", login, (req, res) => {
+    const postId = req.params.postId;
+    POST.findByIdAndRemove(postId)
+        .then((removedPost) => {
+            if (!removedPost) {
+                return res.status(422).json({ error: "Post not found" });
+            }
+            if (removedPost.postedBy.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ error: "You are not authorized to delete this post" });
+            }
+            return res.json({ message: "Successfully deleted" });
+        })
+        .catch((err) => {
+            console.error(err);
+            return res.status(500).json({ error: "Internal server error" });
+        });
+});
+
+
 
 module.exports =router;
