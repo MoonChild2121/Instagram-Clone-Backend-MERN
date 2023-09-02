@@ -47,7 +47,9 @@ router.put("/like",login, (req,res)=> {
         $push:{likes : req.user._id}
     }, {
         new:true
-    }).then((result) => {
+    })
+    .populate("postedBy","_id name")
+    .then((result) => {
         return res.json(result);
     })
     .catch(err => {
@@ -65,6 +67,7 @@ router.put("/dislike", login, (req, res) => {
             new: true
         }
     )
+    .populate("postedBy","_id name")
     .then(result => {
         return res.json(result);
     })
