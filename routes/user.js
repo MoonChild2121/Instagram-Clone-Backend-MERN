@@ -58,6 +58,18 @@ router.put("/unfollow", login, async (req, res) => {
         res.status(422).json({ error: err });
     }
 });
-
+//to upload pfp
+router.put("/uploadpfp", login, (req,res)=> {
+    USER.findByIdAndUpdate(req.user._id, {
+        $set:{Photo:req.body.pic}
+    },
+    {
+        new: true
+    })
+    .catch((err) => {
+        console.error(err);
+        return res.status(500).json({ error: "Internal server error" });
+    });
+})
 
 module.exports = router

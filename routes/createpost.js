@@ -26,8 +26,9 @@ router.post('/createPost', login, (req, res) => {
 
 router.get('/posts',login, (req, res)=> {
     POST.find()
-    .populate("postedBy","_id name")
+    .populate("postedBy","_id name Photo" )
     .populate("comments.postedBy", "_id name")
+    .sort("-createdAt")
     .then(posts => res.json(posts))
     .catch(err => console.log(err))
 })
@@ -37,6 +38,7 @@ router.get('/myposts',login, (req, res) => {
     POST.find({postedBy: req.user._id})
     .populate("postedBy","_id name")
     .populate("comments.postedBy", "_id name")
+    .sort("-createdAt")
     .then(myposts => {
         res.json(myposts)
     })
@@ -48,7 +50,7 @@ router.put("/like",login, (req,res)=> {
     }, {
         new:true
     })
-    .populate("postedBy","_id name")
+    .populate("postedBy","_id name Photo")
     .then((result) => {
         return res.json(result);
     })
@@ -67,7 +69,7 @@ router.put("/dislike", login, (req, res) => {
             new: true
         }
     )
-    .populate("postedBy","_id name")
+    .populate("postedBy","_id name Photo")
     .then(result => {
         return res.json(result);
     })
@@ -86,8 +88,8 @@ router.put("/comment", login, (req, res)=> {
     }, {
         new: true
     })
-    .populate("comments.postedBy", "_id name")
-    .populate("postedBy", "_id name")
+    .populate("comments.postedBy", "_id name Photo")
+    .populate("postedBy", "_id name Photo")
     .then((result) => {
         return res.json(result);
     })
